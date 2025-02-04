@@ -66,7 +66,7 @@
         }
 
         .time p {
-            font-size: 28px;
+            font-size: 24px;
             font-weight: bold;
             color: #00ffff;
             text-shadow: 0 0 10px #00ffff;
@@ -101,6 +101,13 @@
             text-shadow: 0 0 10px orange;
         }
 
+        .date {
+            font-size: 16px;
+            font-weight: bold;
+            color: #ffcc00;
+            text-shadow: 0 0 10px #ffcc00;
+        }
+
         /* Responsive Design */
         @media (min-width: 768px) {
             .time-box {
@@ -122,10 +129,12 @@
             <div class="time">
                 <h2>🇹🇭 เวลาประเทศไทย (TH Time)</h2>
                 <p id="th-time">--:--:--</p>
+                <p class="date" id="th-date">--/--/----</p>
             </div>
             <div class="time">
                 <h2>🇺🇸 เวลานิวยอร์ก (ET Time)</h2>
                 <p id="us-time">--:--:--</p>
+                <p class="date" id="us-date">--/--/----</p>
             </div>
         </div>
 
@@ -143,33 +152,30 @@
             let thTime = now.toLocaleTimeString('th-TH', { timeZone: 'Asia/Bangkok' });
             document.getElementById("th-time").innerText = thTime;
 
+            let thDate = now.toLocaleDateString('th-TH', { weekday: 'long', day: '2-digit', month: 'long', year: 'numeric' });
+            document.getElementById("th-date").innerText = thDate;
+
             // เวลาอเมริกา (GMT-5)
             let usTime = now.toLocaleTimeString('en-US', { timeZone: 'America/New_York' });
             document.getElementById("us-time").innerText = usTime;
+
+            let usDate = now.toLocaleDateString('en-US', { weekday: 'long', day: '2-digit', month: 'long', year: 'numeric' });
+            document.getElementById("us-date").innerText = usDate;
 
             // คำนวณเวลาตลาดหุ้นอเมริกา
             let nyHour = now.toLocaleTimeString('en-US', { hour12: false, timeZone: 'America/New_York' }).split(":")[0];
             let nyMinute = now.toLocaleTimeString('en-US', { hour12: false, timeZone: 'America/New_York' }).split(":")[1];
 
-            let marketOpen = 9.5; // 9:30 AM
-            let marketClose = 16; // 4:00 PM
+            let marketOpen = 9.5;
+            let marketClose = 16;
             let currentTime = parseFloat(nyHour) + parseFloat(nyMinute) / 60;
 
             if (currentTime >= marketOpen && currentTime < marketClose) {
                 document.getElementById("market-status").innerText = "เปิด 🟢";
                 document.getElementById("market-status").style.color = "lime";
-
-                let remainingHours = Math.floor(marketClose - currentTime);
-                let remainingMinutes = Math.round((marketClose - currentTime) * 60) % 60;
-                document.getElementById("countdown").innerText = `${remainingHours} ชั่วโมง ${remainingMinutes} นาที`;
             } else {
                 document.getElementById("market-status").innerText = "ปิด 🔴";
                 document.getElementById("market-status").style.color = "red";
-
-                let nextOpenTime = (24 - currentTime) + marketOpen;
-                let remainingHours = Math.floor(nextOpenTime);
-                let remainingMinutes = Math.round((nextOpenTime % 1) * 60);
-                document.getElementById("countdown").innerText = `${remainingHours} ชั่วโมง ${remainingMinutes} นาที`;
             }
         }
 

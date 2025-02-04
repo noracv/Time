@@ -9,95 +9,95 @@
 
         body {
             font-family: 'Poppins', sans-serif;
-            background: radial-gradient(circle, #080808, #121212);
-            color: white;
+            background: radial-gradient(circle, #121212, #080808);
+            color: #ffffff;
             text-align: center;
-            padding: 20px;
+            margin: 0;
             height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
             flex-direction: column;
+            padding: 20px;
+            overflow: hidden;
         }
 
         .container {
-            width: 90%;
-            max-width: 500px;
-            padding: 25px;
-            border-radius: 15px;
+            width: 100%;
+            max-width: 850px;
             background: rgba(20, 20, 20, 0.85);
-            box-shadow: 0 0 20px rgba(0, 255, 255, 0.6);
-            border: 2px solid rgba(0, 255, 255, 0.4);
+            border-radius: 20px;
+            box-shadow: 0 0 30px rgba(0, 255, 255, 0.6);
+            padding: 25px;
             backdrop-filter: blur(10px);
+            border: 2px solid rgba(0, 255, 255, 0.4);
+            transition: all 0.3s ease-in-out;
         }
 
         h1 {
-            font-size: 22px;
-            letter-spacing: 2px;
+            font-size: 35px;
             font-weight: bold;
-            text-transform: uppercase;
-            text-shadow: 0 0 10px cyan;
+            letter-spacing: 2px;
+            color: #00ffff;
+            text-shadow: 0 0 15px cyan;
+            margin-bottom: 30px;
         }
 
         .time-box {
             display: flex;
-            flex-direction: column;
-            gap: 15px;
-            margin-top: 20px;
+            flex-wrap: wrap;
+            gap: 20px;
+            justify-content: space-between;
+            margin-bottom: 30px;
         }
 
         .time {
-            background: rgba(0, 255, 255, 0.2);
+            background: rgba(0, 255, 255, 0.1);
             padding: 20px;
             border-radius: 12px;
-            box-shadow: 0 0 12px rgba(0, 255, 255, 0.8);
-            border: 2px solid rgba(0, 255, 255, 0.6);
-            backdrop-filter: blur(10px);
+            box-shadow: 0 0 20px rgba(0, 255, 255, 0.6);
+            flex: 1 1 48%;
+            transition: all 0.3s ease;
         }
 
         .time h2 {
-            font-size: 16px;
-            text-shadow: 0 0 8px cyan;
+            font-size: 20px;
+            color: #00ffff;
+            text-shadow: 0 0 10px cyan;
+            margin-bottom: 10px;
         }
 
         .time p {
-            font-size: 24px;
+            font-size: 28px;
             font-weight: bold;
             color: #00ffff;
             text-shadow: 0 0 10px #00ffff;
-        }
-
-        .date {
-            font-size: 16px;
-            font-weight: bold;
-            color: #ffcc00;
-            text-shadow: 0 0 10px #ffcc00;
+            margin-bottom: 5px;
         }
 
         .status-box {
-            margin-top: 20px;
-            padding: 20px;
             background: rgba(255, 255, 0, 0.2);
+            padding: 20px;
             border-radius: 12px;
             box-shadow: 0 0 12px rgba(255, 255, 0, 0.8);
-            border: 2px solid rgba(255, 255, 0, 0.6);
+            margin-bottom: 30px;
             backdrop-filter: blur(10px);
         }
 
         #market-status {
-            font-size: 20px;
+            font-size: 22px;
             font-weight: bold;
             text-shadow: 0 0 10px lime;
+            transition: all 0.3s ease-in-out;
         }
 
         #countdown {
-            font-size: 18px;
+            font-size: 20px;
             font-weight: bold;
             color: orange;
             text-shadow: 0 0 10px orange;
         }
 
-        /* TradingView Widget */
         .tradingview-widget-container {
             margin-top: 40px;
             width: 100%;
@@ -106,6 +106,10 @@
 
         /* Responsive Design */
         @media (min-width: 768px) {
+            .container {
+                width: 80%;
+            }
+
             .time-box {
                 flex-direction: row;
                 justify-content: space-between;
@@ -114,6 +118,21 @@
             .time {
                 width: 48%;
             }
+        }
+
+        /* Transition Effects */
+        .time:hover {
+            background: rgba(0, 255, 255, 0.3);
+            transform: translateY(-10px);
+        }
+
+        .status-box:hover {
+            background: rgba(255, 255, 0, 0.3);
+            transform: translateY(-10px);
+        }
+
+        .tradingview-widget-container {
+            transition: transform 0.5s ease;
         }
     </style>
 </head>
@@ -125,23 +144,20 @@
             <div class="time">
                 <h2>🇹🇭 เวลาประเทศไทย</h2>
                 <p id="th-time">--:--:--</p>
-                <p class="date" id="th-date">--/--/----</p>
+                <p id="th-date">--/--/----</p>
             </div>
             <div class="time">
                 <h2>🇺🇸 เวลานิวยอร์ก</h2>
                 <p id="us-time">--:--:--</p>
-                <p class="date" id="us-date">--/--/----</p>
+                <p id="us-date">--/--/----</p>
             </div>
         </div>
 
         <div class="status-box">
-            <h2>📈 สถานะตลาดหุ้น: <span id="market-status">Loading...</span></h2>
+            <h2>📈 สถานะตลาดหุ้น: <span id="market-status">กำลังโหลด...</span></h2>
             <h3>⏳ ตลาดเปิด/ปิดใน: <span id="countdown">--:--:--</span></h3>
         </div>
 
-        <div class="notification" id="notification"></div>
-
-        <!-- TradingView Widget -->
         <div class="tradingview-widget-container">
             <div id="tradingview_12345"></div>
             <script type="text/javascript">
@@ -194,14 +210,12 @@
             if (nowDay === "Saturday" || nowDay === "Sunday") {
                 document.getElementById("market-status").innerText = "ปิด (วันหยุด) 🔴";
                 document.getElementById("countdown").innerText = "เปิดวันจันทร์ 9:30 AM";
-                document.getElementById("notification").innerText = "ตลาดหุ้นอเมริกา ปิดทำการ";
             } else if (currentTime >= marketOpen && currentTime < marketClose) {
                 document.getElementById("market-status").innerText = "เปิด 🟢";
                 let remainingTime = (marketClose - currentTime) * 60;
                 let hours = Math.floor(remainingTime / 60);
                 let minutes = Math.round(remainingTime % 60);
                 document.getElementById("countdown").innerText = `${hours} ชั่วโมง ${minutes} นาที`;
-                document.getElementById("notification").innerText = "ตลาดหุ้นเปิดทำการแล้ว";
             } else {
                 document.getElementById("market-status").innerText = "ปิด 🔴";
                 let nextOpen = (24 - currentTime) + marketOpen;
@@ -209,7 +223,6 @@
                 let hours = Math.floor(remainingTime / 60);
                 let minutes = Math.round(remainingTime % 60);
                 document.getElementById("countdown").innerText = `${hours} ชั่วโมง ${minutes} นาที`;
-                document.getElementById("notification").innerText = "ตลาดหุ้นปิดทำการ";
             }
         }
 

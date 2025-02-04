@@ -66,6 +66,13 @@
             text-shadow: 0 0 10px #00ffff;
         }
 
+        .date {
+            font-size: 16px;
+            font-weight: bold;
+            color: #ffcc00;
+            text-shadow: 0 0 10px #ffcc00;
+        }
+
         .status-box {
             margin-top: 20px;
             padding: 20px;
@@ -110,10 +117,12 @@
             <div class="time">
                 <h2>🇹🇭 เวลาประเทศไทย</h2>
                 <p id="th-time">--:--:--</p>
+                <p class="date" id="th-date">--/--/----</p>
             </div>
             <div class="time">
                 <h2>🇺🇸 เวลานิวยอร์ก</h2>
                 <p id="us-time">--:--:--</p>
+                <p class="date" id="us-date">--/--/----</p>
             </div>
         </div>
 
@@ -126,21 +135,30 @@
     <script>
         function updateTime() {
             let now = new Date();
+
+            // เวลาไทย (GMT+7)
             let thTime = now.toLocaleTimeString('th-TH', { timeZone: 'Asia/Bangkok' });
             document.getElementById("th-time").innerText = thTime;
 
+            let thDate = now.toLocaleDateString('th-TH', { weekday: 'long', day: '2-digit', month: 'long', year: 'numeric' });
+            document.getElementById("th-date").innerText = thDate;
+
+            // เวลาอเมริกา (GMT-5)
             let usTime = now.toLocaleTimeString('en-US', { timeZone: 'America/New_York' });
             document.getElementById("us-time").innerText = usTime;
 
-            let nyTime = new Date().toLocaleTimeString('en-US', { hour12: false, timeZone: 'America/New_York' }).split(":");
-            let nyHour = parseInt(nyTime[0]);
-            let nyMinute = parseInt(nyTime[1]);
+            let usDate = now.toLocaleDateString('en-US', { weekday: 'long', day: '2-digit', month: 'long', year: 'numeric' });
+            document.getElementById("us-date").innerText = usDate;
 
-            let nowDay = new Date().toLocaleString('en-US', { weekday: 'long', timeZone: 'America/New_York' });
+            // คำนวณเวลาตลาดหุ้นอเมริกา
+            let nyHour = now.toLocaleTimeString('en-US', { hour12: false, timeZone: 'America/New_York' }).split(":")[0];
+            let nyMinute = now.toLocaleTimeString('en-US', { hour12: false, timeZone: 'America/New_York' }).split(":")[1];
 
-            let marketOpen = 9.5; // 9:30 AM
-            let marketClose = 16; // 4:00 PM
-            let currentTime = nyHour + nyMinute / 60;
+            let nowDay = now.toLocaleString('en-US', { weekday: 'long', timeZone: 'America/New_York' });
+
+            let marketOpen = 9.5;
+            let marketClose = 16;
+            let currentTime = parseFloat(nyHour) + parseFloat(nyMinute) / 60;
 
             if (nowDay === "Saturday" || nowDay === "Sunday") {
                 document.getElementById("market-status").innerText = "ปิด (วันหยุด) 🔴";

@@ -52,12 +52,6 @@
             box-shadow: 0 0 12px rgba(0, 255, 255, 0.8);
             border: 2px solid rgba(0, 255, 255, 0.6);
             backdrop-filter: blur(10px);
-            transition: 0.3s ease-in-out;
-        }
-
-        .time:hover {
-            transform: scale(1.03);
-            box-shadow: 0 0 20px rgba(0, 255, 255, 1);
         }
 
         .time h2 {
@@ -80,12 +74,6 @@
             box-shadow: 0 0 12px rgba(255, 255, 0, 0.8);
             border: 2px solid rgba(255, 255, 0, 0.6);
             backdrop-filter: blur(10px);
-            transition: 0.3s ease-in-out;
-        }
-
-        .status-box:hover {
-            transform: scale(1.03);
-            box-shadow: 0 0 20px rgba(255, 255, 0, 1);
         }
 
         #market-status {
@@ -99,13 +87,6 @@
             font-weight: bold;
             color: orange;
             text-shadow: 0 0 10px orange;
-        }
-
-        .date {
-            font-size: 16px;
-            font-weight: bold;
-            color: #ffcc00;
-            text-shadow: 0 0 10px #ffcc00;
         }
 
         /* Responsive Design */
@@ -127,55 +108,56 @@
         
         <div class="time-box">
             <div class="time">
-                <h2>🇹🇭 เวลาประเทศไทย (TH Time)</h2>
+                <h2>🇹🇭 เวลาประเทศไทย</h2>
                 <p id="th-time">--:--:--</p>
-                <p class="date" id="th-date">--/--/----</p>
             </div>
             <div class="time">
-                <h2>🇺🇸 เวลานิวยอร์ก (ET Time)</h2>
+                <h2>🇺🇸 เวลานิวยอร์ก</h2>
                 <p id="us-time">--:--:--</p>
-                <p class="date" id="us-date">--/--/----</p>
             </div>
         </div>
 
         <div class="status-box">
             <h2>📈 สถานะตลาดหุ้น: <span id="market-status">Loading...</span></h2>
-            <h3>⏳ ตลาดปิดในอีก: <span id="countdown">--:--:--</span></h3>
+            <h3>⏳ ตลาดเปิด/ปิดใน: <span id="countdown">--:--:--</span></h3>
         </div>
     </div>
 
     <script>
         function updateTime() {
             let now = new Date();
-
-            // เวลาไทย (GMT+7)
             let thTime = now.toLocaleTimeString('th-TH', { timeZone: 'Asia/Bangkok' });
             document.getElementById("th-time").innerText = thTime;
 
-            let thDate = now.toLocaleDateString('th-TH', { weekday: 'long', day: '2-digit', month: 'long', year: 'numeric' });
-            document.getElementById("th-date").innerText = thDate;
-
-            // เวลาอเมริกา (GMT-5)
             let usTime = now.toLocaleTimeString('en-US', { timeZone: 'America/New_York' });
             document.getElementById("us-time").innerText = usTime;
 
-            let usDate = now.toLocaleDateString('en-US', { weekday: 'long', day: '2-digit', month: 'long', year: 'numeric' });
-            document.getElementById("us-date").innerText = usDate;
+            let nyTime = new Date().toLocaleTimeString('en-US', { hour12: false, timeZone: 'America/New_York' }).split(":");
+            let nyHour = parseInt(nyTime[0]);
+            let nyMinute = parseInt(nyTime[1]);
 
-            // คำนวณเวลาตลาดหุ้นอเมริกา
-            let nyHour = now.toLocaleTimeString('en-US', { hour12: false, timeZone: 'America/New_York' }).split(":")[0];
-            let nyMinute = now.toLocaleTimeString('en-US', { hour12: false, timeZone: 'America/New_York' }).split(":")[1];
+            let nowDay = new Date().toLocaleString('en-US', { weekday: 'long', timeZone: 'America/New_York' });
 
-            let marketOpen = 9.5;
-            let marketClose = 16;
-            let currentTime = parseFloat(nyHour) + parseFloat(nyMinute) / 60;
+            let marketOpen = 9.5; // 9:30 AM
+            let marketClose = 16; // 4:00 PM
+            let currentTime = nyHour + nyMinute / 60;
 
-            if (currentTime >= marketOpen && currentTime < marketClose) {
+            if (nowDay === "Saturday" || nowDay === "Sunday") {
+                document.getElementById("market-status").innerText = "ปิด (วันหยุด) 🔴";
+                document.getElementById("countdown").innerText = "เปิดวันจันทร์ 9:30 AM";
+            } else if (currentTime >= marketOpen && currentTime < marketClose) {
                 document.getElementById("market-status").innerText = "เปิด 🟢";
-                document.getElementById("market-status").style.color = "lime";
+                let remainingTime = (marketClose - currentTime) * 60;
+                let hours = Math.floor(remainingTime / 60);
+                let minutes = Math.round(remainingTime % 60);
+                document.getElementById("countdown").innerText = `${hours} ชั่วโมง ${minutes} นาที`;
             } else {
                 document.getElementById("market-status").innerText = "ปิด 🔴";
-                document.getElementById("market-status").style.color = "red";
+                let nextOpen = (24 - currentTime) + marketOpen;
+                let remainingTime = nextOpen * 60;
+                let hours = Math.floor(remainingTime / 60);
+                let minutes = Math.round(remainingTime % 60);
+                document.getElementById("countdown").innerText = `${hours} ชั่วโมง ${minutes} นาที`;
             }
         }
 

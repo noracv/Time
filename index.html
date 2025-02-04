@@ -2,32 +2,179 @@
 <html lang="th">
 <head>
     <meta charset="UTF-8">
-    <title>ประวัติส่วนตัว</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stock Market Time Tracker</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;700&display=swap');
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: radial-gradient(circle, #080808, #121212);
+            color: white;
+            text-align: center;
+            padding: 20px;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 450px;
+            padding: 25px;
+            border-radius: 15px;
+            background: rgba(20, 20, 20, 0.85);
+            box-shadow: 0 0 20px rgba(0, 255, 255, 0.6);
+            border: 2px solid rgba(0, 255, 255, 0.4);
+            backdrop-filter: blur(10px);
+        }
+
+        h1 {
+            font-size: 22px;
+            letter-spacing: 2px;
+            font-weight: bold;
+            text-transform: uppercase;
+            text-shadow: 0 0 10px cyan;
+        }
+
+        .time-box {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .time {
+            background: rgba(0, 255, 255, 0.2);
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 0 12px rgba(0, 255, 255, 0.8);
+            border: 2px solid rgba(0, 255, 255, 0.6);
+            backdrop-filter: blur(10px);
+            transition: 0.3s ease-in-out;
+        }
+
+        .time:hover {
+            transform: scale(1.03);
+            box-shadow: 0 0 20px rgba(0, 255, 255, 1);
+        }
+
+        .time h2 {
+            font-size: 16px;
+            text-shadow: 0 0 8px cyan;
+        }
+
+        .time p {
+            font-size: 28px;
+            font-weight: bold;
+            color: #00ffff;
+            text-shadow: 0 0 10px #00ffff;
+        }
+
+        .status-box {
+            margin-top: 20px;
+            padding: 20px;
+            background: rgba(255, 255, 0, 0.2);
+            border-radius: 12px;
+            box-shadow: 0 0 12px rgba(255, 255, 0, 0.8);
+            border: 2px solid rgba(255, 255, 0, 0.6);
+            backdrop-filter: blur(10px);
+            transition: 0.3s ease-in-out;
+        }
+
+        .status-box:hover {
+            transform: scale(1.03);
+            box-shadow: 0 0 20px rgba(255, 255, 0, 1);
+        }
+
+        #market-status {
+            font-size: 20px;
+            font-weight: bold;
+            text-shadow: 0 0 10px lime;
+        }
+
+        #countdown {
+            font-size: 18px;
+            font-weight: bold;
+            color: orange;
+            text-shadow: 0 0 10px orange;
+        }
+
+        /* Responsive Design */
+        @media (min-width: 768px) {
+            .time-box {
+                flex-direction: row;
+                justify-content: space-between;
+            }
+
+            .time {
+                width: 48%;
+            }
+        }
+    </style>
 </head>
 <body>
+    <div class="container">
+        <h1>📊 ตลาดหุ้นอเมริกา เทียบเวลาประเทศไทย</h1>
+        
+        <div class="time-box">
+            <div class="time">
+                <h2>🇹🇭 เวลาประเทศไทย (TH Time)</h2>
+                <p id="th-time">--:--:--</p>
+            </div>
+            <div class="time">
+                <h2>🇺🇸 เวลานิวยอร์ก (ET Time)</h2>
+                <p id="us-time">--:--:--</p>
+            </div>
+        </div>
 
-        <div align="center">
+        <div class="status-box">
+            <h2>📈 สถานะตลาดหุ้น: <span id="market-status">Loading...</span></h2>
+            <h3>⏳ ตลาดปิดในอีก: <span id="countdown">--:--:--</span></h3>
+        </div>
+    </div>
 
-     <h2>ประวัติส่วนตัว</h2>
-            <img src="https://scontent.xx.fbcdn.net/v/t1.15752-9/462556975_523593820668757_5371177249342822365_n.png?_nc_cat=100&ccb=1-7&_nc_sid=0024fc&_nc_ohc=Hci0Pg9A06kQ7kNvgG-0m5T&_nc_ad=z-m&_nc_cid=0&_nc_zt=23&_nc_ht=scontent.xx&oh=03_Q7cD1QGj7MM42NFxfFzXXAJ2qaLcUCHKGNOLsDiVigQSf_0vaQ&oe=675E2555" width="110px" height="120px"><br>
-    <p><strong>ชื่อ:</strong> ธนวัฒน์ หาญมโนวิริยะ</p>
-    <p><strong>ชื่อเล่น:เติ้ล</strong></p>
-    <p><strong>เชื้อชาติ:</strong> เมกา <strong>สัญชาติ:</strong> เมกา <strong>ศาสนา:</strong> พุทธ <strong>สถานภาพ:</strong> โสด</p>
-    <p><strong>วันเกิด:</strong> วันอังคาร 21 ตุลาคม 2551 <strong>อายุ:</strong> 16 ปี</p>
-    <p><strong>จำนวนพี่น้อง:</strong> มีพี่น้องทั้งหมด 2 คน ชาย 2 คน </p>
+    <script>
+        function updateTime() {
+            let now = new Date();
 
-         <h3>ที่อยู่ปัจจุบัน</h3>
-    <p>บ้านเลขที่ 888/127 ม.4 ดีญ่าวาเลย์สารภี หนองผึ้ง สารภี เชียงใหม่ 50140</p>
-    <p><strong>หมายเลขโทรศัพท์:</strong> 191</p>
-    <p><strong>อีเมล์:</strong>tanawatlittle@gmail.com</p>
+            // เวลาไทย (GMT+7)
+            let thTime = now.toLocaleTimeString('th-TH', { timeZone: 'Asia/Bangkok' });
+            document.getElementById("th-time").innerText = thTime;
 
-        <h3>ประวัติการศึกษา</h3>
-    <p>อนุบาล - ป6</p>
-    <p>อนุบาลเชียงใหม่</p>
-    <p>ม1-3</p>
-    <p>ดาราวิทยาลัย</p>
-    <p>ปวช 1</p>
-    <p>วิทยาลัยเทคโนโลยีโปลิเทคนิคลานนา</p>
+            // เวลาอเมริกา (GMT-5)
+            let usTime = now.toLocaleTimeString('en-US', { timeZone: 'America/New_York' });
+            document.getElementById("us-time").innerText = usTime;
 
+            // คำนวณเวลาตลาดหุ้นอเมริกา
+            let nyHour = now.toLocaleTimeString('en-US', { hour12: false, timeZone: 'America/New_York' }).split(":")[0];
+            let nyMinute = now.toLocaleTimeString('en-US', { hour12: false, timeZone: 'America/New_York' }).split(":")[1];
+
+            let marketOpen = 9.5; // 9:30 AM
+            let marketClose = 16; // 4:00 PM
+            let currentTime = parseFloat(nyHour) + parseFloat(nyMinute) / 60;
+
+            if (currentTime >= marketOpen && currentTime < marketClose) {
+                document.getElementById("market-status").innerText = "เปิด 🟢";
+                document.getElementById("market-status").style.color = "lime";
+
+                let remainingHours = Math.floor(marketClose - currentTime);
+                let remainingMinutes = Math.round((marketClose - currentTime) * 60) % 60;
+                document.getElementById("countdown").innerText = `${remainingHours} ชั่วโมง ${remainingMinutes} นาที`;
+            } else {
+                document.getElementById("market-status").innerText = "ปิด 🔴";
+                document.getElementById("market-status").style.color = "red";
+
+                let nextOpenTime = (24 - currentTime) + marketOpen;
+                let remainingHours = Math.floor(nextOpenTime);
+                let remainingMinutes = Math.round((nextOpenTime % 1) * 60);
+                document.getElementById("countdown").innerText = `${remainingHours} ชั่วโมง ${remainingMinutes} นาที`;
+            }
+        }
+
+        setInterval(updateTime, 1000);
+        updateTime();
+    </script>
 </body>
 </html>

@@ -14,16 +14,6 @@
             text-align: center;
             margin: 0;
             padding: 0;
-            overflow: hidden;
-        }
-
-        .background {
-            position: fixed;
-            width: 100%;
-            height: 100%;
-            background: url('https://i.imgur.com/zvZWOGM.jpg') no-repeat center center/cover;
-            opacity: 0.3;
-            z-index: -1;
         }
 
         .container {
@@ -36,19 +26,9 @@
             box-shadow: 0 0 20px rgba(0, 255, 234, 0.7);
         }
 
-        header {
-            padding: 15px;
-            border-bottom: 2px solid #00ffea;
-        }
-
         h1 {
             font-size: 24px;
             text-shadow: 0 0 10px #00ffea;
-        }
-
-        .time-container {
-            font-size: 14px;
-            margin-top: 10px;
         }
 
         .crypto-box {
@@ -95,68 +75,71 @@
     </style>
 </head>
 <body>
-    <div class="background"></div>
     <div class="container">
-        <header>
-            <h1>Cyberpunk Crypto Tracker</h1>
-            <div class="time-container">
-                <p id="th-time">🇹🇭 Bangkok Time: --:--</p>
-                <p id="us-time">🇺🇸 New York Time: --:--</p>
-            </div>
-        </header>
+        <h1>Cyberpunk Crypto Tracker</h1>
+        <p id="th-time">🇹🇭 Bangkok Time: --:--</p>
+        <p id="us-time">🇺🇸 New York Time: --:--</p>
 
-        <main>
-            <div class="crypto-box">
-                <h2>Bitcoin (BTC)</h2>
-                <p class="price" id="btc-price">Loading...</p>
-            </div>
+        <div class="crypto-box">
+            <h2>Bitcoin (BTC)</h2>
+            <p class="price" id="btc-price">Loading...</p>
+        </div>
 
-            <div class="crypto-box">
-                <h2>Ethereum (ETH)</h2>
-                <p class="price" id="eth-price">Loading...</p>
-            </div>
+        <div class="crypto-box">
+            <h2>Ethereum (ETH)</h2>
+            <p class="price" id="eth-price">Loading...</p>
+        </div>
 
-            <div class="crypto-box">
-                <h2>Gold (XAU/USD)</h2>
-                <p class="price" id="gold-price">Loading...</p>
-            </div>
-        </main>
+        <div class="crypto-box">
+            <h2>Gold (XAU/USD)</h2>
+            <p class="price" id="gold-price">Loading...</p>
+        </div>
 
         <button class="refresh-btn" onclick="manualRefresh()">🔄 Refresh Now</button>
     </div>
 
     <script>
         const API_URL = "https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum&vs_currencies=usd";
-        const GOLD_API_URL = "https://api.metals.live/v1/spot";  // API ราคาทองคำ
+        const GOLD_API_URL = "https://api.metals.live/v1/spot";  
 
         async function fetchCryptoPrices() {
             try {
                 const response = await fetch(API_URL);
+                if (!response.ok) throw new Error("Failed to fetch crypto prices");
                 const data = await response.json();
                 document.getElementById("btc-price").textContent = `$${data.bitcoin.usd.toLocaleString()}`;
                 document.getElementById("eth-price").textContent = `$${data.ethereum.usd.toLocaleString()}`;
             } catch (error) {
-                console.error("Error fetching crypto prices:", error);
+                console.error(error);
+                document.getElementById("btc-price").textContent = "Error loading price";
+                document.getElementById("eth-price").textContent = "Error loading price";
             }
         }
 
         async function fetchGoldPrice() {
             try {
                 const response = await fetch(GOLD_API_URL);
+                if (!response.ok) throw new Error("Failed to fetch gold price");
                 const data = await response.json();
-                const goldPrice = data[0].gold;  
+                const goldPrice = data[0].gold;
                 document.getElementById("gold-price").textContent = `$${goldPrice.toLocaleString()}`;
             } catch (error) {
-                console.error("Error fetching gold price:", error);
+                console.error(error);
+                document.getElementById("gold-price").textContent = "Error loading price";
             }
         }
 
         function updateTime() {
-            const now = new Date();
-            const thailandTime = new Date(now.getTime() + 7 * 60 * 60 * 1000);
-            document.getElementById("th-time").textContent = `🇹🇭 Bangkok Time: ${thailandTime.toLocaleTimeString()}`;
-            const newYorkTime = new Date(now.getTime() + (-5 * 60 * 60 * 1000));
-            document.getElementById("us-time").textContent = `🇺🇸 New York Time: ${newYorkTime.toLocaleTimeString()}`;
+            try {
+                const now = new Date();
+                const thailandTime = new Date(now.toLocaleString("en-US", {timeZone: "Asia/Bangkok"}));
+                document.getElementById("th-time").textContent = `🇹🇭 Bangkok Time: ${thailandTime.toLocaleTimeString()}`;
+
+                const newYorkTime = new Date(now.toLocaleString("en-US", {timeZone: "America/New_York"}));
+                document.getElementById("us-time").textContent = `🇺🇸 New York Time: ${newYorkTime.toLocaleTimeString()}`;
+            } catch (error) {
+                console.error("Error updating time:", error);
+            }
         }
 
         function manualRefresh() {

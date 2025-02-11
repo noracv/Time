@@ -3,13 +3,102 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Crypto Tracker - Cyberpunk</title>
-    <link rel="stylesheet" href="styles.css">
+    <title>Cyberpunk Crypto Tracker</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron&display=swap');
+
+        body {
+            background: linear-gradient(135deg, #050505, #111);
+            color: #00ffea;
+            font-family: 'Orbitron', sans-serif;
+            text-align: center;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+        }
+
+        .background {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            background: url('https://i.imgur.com/zvZWOGM.jpg') no-repeat center center/cover;
+            opacity: 0.3;
+            z-index: -1;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 500px;
+            margin: 50px auto;
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.8);
+            border-radius: 12px;
+            box-shadow: 0 0 20px rgba(0, 255, 234, 0.7);
+        }
+
+        header {
+            padding: 15px;
+            border-bottom: 2px solid #00ffea;
+        }
+
+        h1 {
+            font-size: 24px;
+            text-shadow: 0 0 10px #00ffea;
+        }
+
+        .time-container {
+            font-size: 14px;
+            margin-top: 10px;
+        }
+
+        .crypto-box {
+            background: rgba(255, 255, 255, 0.1);
+            margin: 20px 0;
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 0 0 15px rgba(0, 255, 234, 0.5);
+            transition: transform 0.3s ease-in-out;
+        }
+
+        .crypto-box:hover {
+            transform: scale(1.05);
+        }
+
+        h2 {
+            font-size: 20px;
+        }
+
+        .price {
+            font-size: 24px;
+            font-weight: bold;
+            color: #ffcc00;
+            text-shadow: 0 0 8px #ffcc00;
+        }
+
+        .refresh-btn {
+            margin-top: 20px;
+            padding: 10px 20px;
+            font-size: 16px;
+            background: #ff00ff;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            box-shadow: 0 0 15px #ff00ff;
+            transition: 0.3s;
+        }
+
+        .refresh-btn:hover {
+            background: #ff0099;
+            box-shadow: 0 0 25px #ff0099;
+        }
+    </style>
 </head>
 <body>
+    <div class="background"></div>
     <div class="container">
         <header>
-            <h1>Crypto Tracker</h1>
+            <h1>Cyberpunk Crypto Tracker</h1>
             <div class="time-container">
                 <p id="th-time">🇹🇭 Bangkok Time: --:--</p>
                 <p id="us-time">🇺🇸 New York Time: --:--</p>
@@ -32,8 +121,56 @@
                 <p class="price" id="gold-price">Loading...</p>
             </div>
         </main>
+
+        <button class="refresh-btn" onclick="manualRefresh()">🔄 Refresh Now</button>
     </div>
 
-    <script src="script.js"></script>
+    <script>
+        const API_URL = "https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum&vs_currencies=usd";
+        const GOLD_API_URL = "https://api.metals.live/v1/spot";  // API ราคาทองคำ
+
+        async function fetchCryptoPrices() {
+            try {
+                const response = await fetch(API_URL);
+                const data = await response.json();
+                document.getElementById("btc-price").textContent = `$${data.bitcoin.usd.toLocaleString()}`;
+                document.getElementById("eth-price").textContent = `$${data.ethereum.usd.toLocaleString()}`;
+            } catch (error) {
+                console.error("Error fetching crypto prices:", error);
+            }
+        }
+
+        async function fetchGoldPrice() {
+            try {
+                const response = await fetch(GOLD_API_URL);
+                const data = await response.json();
+                const goldPrice = data[0].gold;  
+                document.getElementById("gold-price").textContent = `$${goldPrice.toLocaleString()}`;
+            } catch (error) {
+                console.error("Error fetching gold price:", error);
+            }
+        }
+
+        function updateTime() {
+            const now = new Date();
+            const thailandTime = new Date(now.getTime() + 7 * 60 * 60 * 1000);
+            document.getElementById("th-time").textContent = `🇹🇭 Bangkok Time: ${thailandTime.toLocaleTimeString()}`;
+            const newYorkTime = new Date(now.getTime() + (-5 * 60 * 60 * 1000));
+            document.getElementById("us-time").textContent = `🇺🇸 New York Time: ${newYorkTime.toLocaleTimeString()}`;
+        }
+
+        function manualRefresh() {
+            fetchCryptoPrices();
+            fetchGoldPrice();
+        }
+
+        setInterval(fetchCryptoPrices, 10000);
+        setInterval(fetchGoldPrice, 10000);
+        setInterval(updateTime, 1000);
+
+        fetchCryptoPrices();
+        fetchGoldPrice();
+        updateTime();
+    </script>
 </body>
 </html>

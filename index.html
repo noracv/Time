@@ -1,232 +1,175 @@
 <!DOCTYPE html>
-<html lang="th">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>เวลาและวันที่พร้อมลูกเล่นสุดล้ำ</title>
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
+    <title>Catching Hearts Game</title>
     <style>
-        /* พื้นหลัง Particle */
         body {
-            font-family: 'Roboto', sans-serif;
-            margin: 0;
-            overflow: hidden;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            background: radial-gradient(circle, #0F2027, #203A43, #2C5364);
-            color: white;
             text-align: center;
+            background: linear-gradient(to bottom, #ff9a9e, #fad0c4);
+            font-family: Arial, sans-serif;
         }
-
-        canvas {
-            position: absolute;
-            top: 0;
-            left: 0;
-        }
-
-        .container {
-            z-index: 10;
-        }
-
         h1 {
-            font-size: 3em;
-            margin: 0;
-            animation: glow 2s ease-in-out infinite alternate;
+            color: #fff;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
         }
-
-        @keyframes glow {
-            from { text-shadow: 0 0 10px #fff, 0 0 20px #ff00ff, 0 0 30px #ff00ff; }
-            to { text-shadow: 0 0 20px #fff, 0 0 30px #ff00ff, 0 0 40px #ff00ff; }
+        #gameCanvas {
+            background: url('background.png') no-repeat center center;
+            background-size: cover;
+            border: 2px solid #fff;
+            display: block;
+            margin: auto;
         }
-
-        /* เวลาและวันที่ */
-        .datetime p {
-            font-size: 24px;
-            margin: 5px;
-            animation: fadeIn 2s;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        /* แกลเลอรีรูปภาพแบบ 3D Flip Card */
-        .gallery {
-            display: flex;
-            justify-content: center;
-            flex-wrap: wrap;
-            gap: 15px;
-            margin-top: 30px;
-        }
-
-        .card {
-            width: 200px;
-            height: 300px;
-            perspective: 1000px;
-        }
-
-        .card-inner {
-            width: 100%;
-            height: 100%;
-            position: relative;
-            transition: transform 0.6s;
-            transform-style: preserve-3d;
-        }
-
-        .card:hover .card-inner {
-            transform: rotateY(180deg);
-        }
-
-        .card-front, .card-back {
+        #outputCanvas {
             position: absolute;
-            width: 100%;
-            height: 100%;
-            backface-visibility: hidden;
-            border-radius: 15px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            top: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 400px;
+            height: 300px;
+            opacity: 0.7;
         }
-
-        .card-front {
-            background: #fff;
-            overflow: hidden;
-        }
-
-        .card-front img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            border-radius: 15px;
-        }
-
-        .card-back {
-            background: #6A0572;
-            color: white;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            transform: rotateY(180deg);
-            border-radius: 15px;
-        }
-
-        input[type="file"] {
+        video {
             display: none;
         }
-
-        .upload-btn {
-            display: inline-block;
-            background: #FF416C;
-            color: white;
-            padding: 10px 20px;
-            border-radius: 30px;
-            text-decoration: none;
-            cursor: pointer;
-            transition: background 0.3s;
-            box-shadow: 0 4px 15px rgba(255, 65, 108, 0.4);
-            margin: 10px;
-        }
-        .upload-btn:hover {
-            background: #FF4B2B;
-        }
     </style>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-core"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-converter"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-backend-webgl"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js"></script>
 </head>
 <body>
-    <canvas id="canvas"></canvas>
-    <div class="container">
-        <h1>เวลาและวันที่ปัจจุบัน</h1>
-        <div class="datetime">
-            <p id="date"></p>
-            <p id="time"></p>
-        </div>
-
-        <div class="gallery">
-            <div class="card">
-                <div class="card-inner">
-                    <div class="card-front">
-                        <img id="img1" src="#" alt="Image 1" style="display:none;">
-                    </div>
-                    <div class="card-back">
-                        รูปภาพที่ 1
-                    </div>
-                </div>
-                <label for="upload1" class="upload-btn">อัปโหลด 1</label>
-                <input type="file" id="upload1" accept="image/*" onchange="loadImage(event, 0)">
-            </div>
-            <div class="card">
-                <div class="card-inner">
-                    <div class="card-front">
-                        <img id="img2" src="#" alt="Image 2" style="display:none;">
-                    </div>
-                    <div class="card-back">
-                        รูปภาพที่ 2
-                    </div>
-                </div>
-                <label for="upload2" class="upload-btn">อัปโหลด 2</label>
-                <input type="file" id="upload2" accept="image/*" onchange="loadImage(event, 1)">
-            </div>
-        </div>
-    </div>
+    <h1>Catching Hearts ❤️</h1>
+    <p>Score: <span id="score">0</span></p>
+    <p>High Score: <span id="highScore">0</span></p>
+    
+    <canvas id="gameCanvas"></canvas>
+    <video id="video" autoplay></video>
+    <canvas id="outputCanvas"></canvas>
 
     <script>
-        // อัปเดตเวลาและวันที่ทุกวินาที
-        function updateDateTime() {
-            const date = new Date();
-            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-            document.getElementById('date').innerHTML = date.toLocaleDateString('th-TH', options);
-            document.getElementById('time').innerHTML = date.toLocaleTimeString('th-TH');
-        }
-        setInterval(updateDateTime, 1000);
-
-        // โหลดและแสดงรูปภาพ
-        function loadImage(event, index) {
-            const imgId = "img" + (index + 1);
-            const img = document.getElementById(imgId);
-            img.src = URL.createObjectURL(event.target.files[0]);
-            img.style.display = 'block';
-        }
-
-        // Particle Animation
-        const canvas = document.getElementById("canvas");
+        const canvas = document.getElementById("gameCanvas");
         const ctx = canvas.getContext("2d");
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
-        let particlesArray = [];
-        
-        class Particle {
-            constructor() {
-                this.x = Math.random() * canvas.width;
-                this.y = Math.random() * canvas.height;
-                this.size = Math.random() * 5 + 1;
-                this.speedX = Math.random() * 3 - 1.5;
-                this.speedY = Math.random() * 3 - 1.5;
+        canvas.width = 400;
+        canvas.height = 500;
+
+        const video = document.getElementById("video");
+        const outputCanvas = document.getElementById("outputCanvas");
+        const outputCtx = outputCanvas.getContext("2d");
+        outputCanvas.width = 400;
+        outputCanvas.height = 300;
+
+        let score = 0;
+        let highScore = localStorage.getItem("highScore") || 0;
+        document.getElementById("highScore").innerText = highScore;
+
+        let basket = { x: 175, y: 450, width: 50, height: 30 };
+        let hearts = [];
+
+        function createHeart() {
+            let type = Math.random() < 0.8 ? "normal" : Math.random() < 0.5 ? "gold" : "bomb";
+            hearts.push({ x: Math.random() * 350, y: 0, width: 20, height: 20, speed: 2, type });
+        }
+
+        function moveHearts() {
+            for (let i = 0; i < hearts.length; i++) {
+                hearts[i].y += hearts[i].speed;
+                if (hearts[i].y > canvas.height) {
+                    hearts.splice(i, 1);
+                }
             }
-            update() {
-                this.x += this.speedX;
-                this.y += this.speedY;
+        }
+
+        function checkCollision() {
+            for (let i = 0; i < hearts.length; i++) {
+                if (
+                    hearts[i].x < basket.x + basket.width &&
+                    hearts[i].x + hearts[i].width > basket.x &&
+                    hearts[i].y < basket.y + basket.height &&
+                    hearts[i].y + hearts[i].height > basket.y
+                ) {
+                    if (hearts[i].type === "normal") {
+                        score++;
+                    } else if (hearts[i].type === "gold") {
+                        score += 5;
+                    } else if (hearts[i].type === "bomb") {
+                        score = Math.max(0, score - 3);
+                    }
+                    document.getElementById("score").innerText = score;
+                    hearts.splice(i, 1);
+                }
             }
-            draw() {
-                ctx.fillStyle = 'rgba(255, 255, 255, 0.7)';
+
+            if (score > highScore) {
+                highScore = score;
+                localStorage.setItem("highScore", highScore);
+                document.getElementById("highScore").innerText = highScore;
+            }
+        }
+
+        function drawBasket() {
+            ctx.fillStyle = "brown";
+            ctx.fillRect(basket.x, basket.y, basket.width, basket.height);
+        }
+
+        function drawHearts() {
+            for (let heart of hearts) {
+                ctx.fillStyle = heart.type === "gold" ? "gold" : heart.type === "bomb" ? "black" : "red";
                 ctx.beginPath();
-                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-                ctx.closePath();
+                ctx.arc(heart.x + 10, heart.y + 10, 10, 0, Math.PI * 2);
                 ctx.fill();
             }
         }
 
-        function animateParticles() {
+        function updateGame() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
-            particlesArray.forEach(p => {
-                p.update();
-                p.draw();
-            });
-            requestAnimationFrame(animateParticles);
+            moveHearts();
+            checkCollision();
+            drawHearts();
+            drawBasket();
+            requestAnimationFrame(updateGame);
         }
-        
-        setInterval(() => particlesArray.push(new Particle()), 100);
-        animateParticles();
+
+        function moveBasket(event) {
+            let xPos = event.touches ? event.touches[0].clientX : event.clientX;
+            let canvasRect = canvas.getBoundingClientRect();
+            let newX = xPos - canvasRect.left - basket.width / 2;
+
+            if (newX < 0) newX = 0;
+            if (newX > canvas.width - basket.width) newX = canvas.width - basket.width;
+
+            basket.x = newX;
+        }
+        canvas.addEventListener("mousemove", moveBasket);
+        canvas.addEventListener("touchmove", moveBasket);
+
+        // **Hand Tracking**
+        const hands = new Hands({ locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}` });
+        hands.setOptions({ maxNumHands: 1, minDetectionConfidence: 0.5, minTrackingConfidence: 0.5 });
+
+        const camera = new Camera(video, {
+            onFrame: async () => {
+                await hands.send({ image: video });
+            },
+            width: 400,
+            height: 300,
+        });
+        camera.start();
+
+        hands.onResults((results) => {
+            outputCtx.clearRect(0, 0, outputCanvas.width, outputCanvas.height);
+            if (results.multiHandLandmarks.length > 0) {
+                let x = results.multiHandLandmarks[0][8].x * outputCanvas.width;
+                basket.x = (x / outputCanvas.width) * canvas.width - basket.width / 2;
+            }
+        });
+
+        setInterval(createHeart, 1000);
+        updateGame();
     </script>
 </body>
 </html>

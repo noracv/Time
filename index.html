@@ -3,141 +3,30 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>เวลาและวันที่</title>
-    <!-- ใช้ Google Fonts เพื่อความสวยงาม -->
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
-    <style>
-        /* พื้นหลังและฟอนต์ */
-        body {
-            font-family: 'Roboto', sans-serif;
-            background: linear-gradient(-45deg, #8EC5FC, #E0C3FC, #FFAFBD, #FFC3A0);
-            background-size: 400% 400%;
-            animation: gradientBackground 15s ease infinite;
-            text-align: center;
-            padding: 50px;
-            margin: 0;
-        }
-
-        /* การเคลื่อนไหวพื้นหลัง */
-        @keyframes gradientBackground {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
-        }
-
-        /* กล่องหลัก */
-        .container {
-            background: rgba(255, 255, 255, 0.85);
-            padding: 30px;
-            border-radius: 15px;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
-            display: inline-block;
-            transition: transform 0.3s;
-            max-width: 90%;
-        }
-        .container:hover {
-            transform: translateY(-10px);
-        }
-
-        /* หัวข้อ */
-        h1 {
-            color: #6A0572;
-            font-weight: 700;
-            text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2);
-            margin-bottom: 10px;
-            animation: fadeIn 2s;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(-20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        /* เวลาและวันที่ */
-        .datetime p {
-            font-size: 28px;
-            color: #3C415C;
-            margin: 10px 0;
-            animation: bounceIn 1.5s;
-        }
-
-        @keyframes bounceIn {
-            0% { transform: scale(0.5); opacity: 0; }
-            70% { transform: scale(1.2); opacity: 1; }
-            100% { transform: scale(1); }
-        }
-
-        /* ปุ่มอัปโหลด */
-        .upload-btn {
-            display: inline-block;
-            background: #6A0572;
-            color: white;
-            padding: 10px 20px;
-            border-radius: 30px;
-            text-decoration: none;
-            cursor: pointer;
-            transition: background 0.3s;
-            box-shadow: 0 4px 15px rgba(106, 5, 114, 0.4);
-        }
-        .upload-btn:hover {
-            background: #9A4D9E;
-        }
-
-        input[type="file"] {
-            display: none;
-        }
-
-        /* รูปภาพ */
-        img {
-            margin-top: 20px;
-            max-width: 100%;
-            border-radius: 15px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-            transition: transform 0.3s;
-        }
-        img:hover {
-            transform: scale(1.05);
-        }
-        .fade-in-img {
-            animation: fadeInImg 1s ease;
-        }
-
-        @keyframes fadeInImg {
-            from { opacity: 0; transform: scale(0.9); }
-            to { opacity: 1; transform: scale(1); }
-        }
-    </style>
+    <title>การ์ดวันวาเลนไทน์</title>
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
     <div class="container">
-        <h1 class="fade-in">เวลาและวันที่ปัจจุบัน</h1>
-        <div class="datetime bounce-in">
-            <p id="date"></p>
-            <p id="time"></p>
+        <h1>สุขสันต์วันวาเลนไทน์!</h1>
+        <div class="card">
+            <div class="photo-grid">
+                <input type="file" class="photo-input" accept="image/*" onchange="loadImage(this, 0)">
+                <input type="file" class="photo-input" accept="image/*" onchange="loadImage(this, 1)">
+                <input type="file" class="photo-input" accept="image/*" onchange="loadImage(this, 2)">
+                <input type="file" class="photo-input" accept="image/*" onchange="loadImage(this, 3)">
+                <img class="photo" id="photo0">
+                <img class="photo" id="photo1">
+                <img class="photo" id="photo2">
+                <img class="photo" id="photo3">
+            </div>
+            <div class="message">
+                <textarea placeholder="พิมพ์ข้อความหวาน ๆ ที่นี่..."></textarea>
+            </div>
         </div>
-        <div class="upload-section">
-            <label for="imageUpload" class="upload-btn">เพิ่มรูปภาพ</label>
-            <input type="file" id="imageUpload" accept="image/*" onchange="loadImage(event)">
-            <img id="uploadedImage" src="#" alt="Uploaded Image" class="fade-in-img" style="display:none;">
-        </div>
+        <button class="download-btn" onclick="downloadCard()">ดาวน์โหลดการ์ด</button>
     </div>
-
-    <script>
-        // อัปเดตเวลาและวันที่ทุกวินาที
-        function updateDateTime() {
-            const date = new Date();
-            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-            document.getElementById('date').innerHTML = date.toLocaleDateString('th-TH', options);
-            document.getElementById('time').innerHTML = date.toLocaleTimeString('th-TH');
-        }
-        setInterval(updateDateTime, 1000);
-
-        // โหลดและแสดงรูปภาพ
-        function loadImage(event) {
-            const image = document.getElementById('uploadedImage');
-            image.src = URL.createObjectURL(event.target.files[0]);
-            image.style.display = 'block';
-        }
-    </script>
+    <div class="hearts" id="hearts"></div>
+    <script src="script.js"></script>
 </body>
 </html>

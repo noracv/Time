@@ -3,173 +3,106 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Catching Hearts Game</title>
+    <title>Cyber Cursor Effect</title>
     <style>
         body {
-            text-align: center;
-            background: linear-gradient(to bottom, #ff9a9e, #fad0c4);
+            margin: 0;
+            overflow: hidden;
+            background: black;
+            color: white;
             font-family: Arial, sans-serif;
         }
-        h1 {
-            color: #fff;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
         }
-        #gameCanvas {
-            background: url('background.png') no-repeat center center;
-            background-size: cover;
-            border: 2px solid #fff;
-            display: block;
-            margin: auto;
+        .code-bg {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: url('https://www.transparenttextures.com/patterns/asfalt-dark.png');
+            opacity: 0.1;
         }
-        #outputCanvas {
+        .clock {
             position: absolute;
             top: 10px;
             left: 50%;
             transform: translateX(-50%);
-            width: 400px;
-            height: 300px;
-            opacity: 0.7;
-        }
-        video {
-            display: none;
+            font-size: 18px;
+            background: rgba(0, 0, 0, 0.6);
+            padding: 5px 15px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px cyan;
         }
     </style>
-    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-core"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-converter"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-backend-webgl"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js"></script>
 </head>
 <body>
-    <h1>Catching Hearts ❤️</h1>
-    <p>Score: <span id="score">0</span></p>
-    <p>High Score: <span id="highScore">0</span></p>
-    
-    <canvas id="gameCanvas"></canvas>
-    <video id="video" autoplay></video>
-    <canvas id="outputCanvas"></canvas>
-
+    <div class="code-bg"></div>
+    <div class="clock" id="clock"></div>
+    <canvas id="canvas"></canvas>
     <script>
-        const canvas = document.getElementById("gameCanvas");
+        function updateClock() {
+            const now = new Date();
+            const options = { timeZone: 'Asia/Bangkok', hour: '2-digit', minute: '2-digit', second: '2-digit' };
+            document.getElementById('clock').innerText = new Intl.DateTimeFormat('en-GB', options).format(now);
+        }
+        setInterval(updateClock, 1000);
+        updateClock();
+
+        const canvas = document.getElementById("canvas");
         const ctx = canvas.getContext("2d");
-        canvas.width = 400;
-        canvas.height = 500;
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
 
-        const video = document.getElementById("video");
-        const outputCanvas = document.getElementById("outputCanvas");
-        const outputCtx = outputCanvas.getContext("2d");
-        outputCanvas.width = 400;
-        outputCanvas.height = 300;
+        let particles = [];
 
-        let score = 0;
-        let highScore = localStorage.getItem("highScore") || 0;
-        document.getElementById("highScore").innerText = highScore;
-
-        let basket = { x: 175, y: 450, width: 50, height: 30 };
-        let hearts = [];
-
-        function createHeart() {
-            let type = Math.random() < 0.8 ? "normal" : Math.random() < 0.5 ? "gold" : "bomb";
-            hearts.push({ x: Math.random() * 350, y: 0, width: 20, height: 20, speed: 2, type });
-        }
-
-        function moveHearts() {
-            for (let i = 0; i < hearts.length; i++) {
-                hearts[i].y += hearts[i].speed;
-                if (hearts[i].y > canvas.height) {
-                    hearts.splice(i, 1);
-                }
+        class Particle {
+            constructor(x, y) {
+                this.x = x;
+                this.y = y;
+                this.size = Math.random() * 5 + 1;
+                this.speedX = Math.random() * 3 - 1.5;
+                this.speedY = Math.random() * 3 - 1.5;
             }
-        }
-
-        function checkCollision() {
-            for (let i = 0; i < hearts.length; i++) {
-                if (
-                    hearts[i].x < basket.x + basket.width &&
-                    hearts[i].x + hearts[i].width > basket.x &&
-                    hearts[i].y < basket.y + basket.height &&
-                    hearts[i].y + hearts[i].height > basket.y
-                ) {
-                    if (hearts[i].type === "normal") {
-                        score++;
-                    } else if (hearts[i].type === "gold") {
-                        score += 5;
-                    } else if (hearts[i].type === "bomb") {
-                        score = Math.max(0, score - 3);
-                    }
-                    document.getElementById("score").innerText = score;
-                    hearts.splice(i, 1);
-                }
+            update() {
+                this.x += this.speedX;
+                this.y += this.speedY;
+                if (this.size > 0.2) this.size -= 0.1;
             }
-
-            if (score > highScore) {
-                highScore = score;
-                localStorage.setItem("highScore", highScore);
-                document.getElementById("highScore").innerText = highScore;
-            }
-        }
-
-        function drawBasket() {
-            ctx.fillStyle = "brown";
-            ctx.fillRect(basket.x, basket.y, basket.width, basket.height);
-        }
-
-        function drawHearts() {
-            for (let heart of hearts) {
-                ctx.fillStyle = heart.type === "gold" ? "gold" : heart.type === "bomb" ? "black" : "red";
+            draw() {
+                ctx.fillStyle = "rgba(0, 255, 255, 0.8)";
                 ctx.beginPath();
-                ctx.arc(heart.x + 10, heart.y + 10, 10, 0, Math.PI * 2);
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
                 ctx.fill();
             }
         }
 
-        function updateGame() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            moveHearts();
-            checkCollision();
-            drawHearts();
-            drawBasket();
-            requestAnimationFrame(updateGame);
+        function handleParticles() {
+            for (let i = 0; i < particles.length; i++) {
+                particles[i].update();
+                particles[i].draw();
+                if (particles[i].size <= 0.2) {
+                    particles.splice(i, 1);
+                    i--;
+                }
+            }
         }
 
-        function moveBasket(event) {
-            let xPos = event.touches ? event.touches[0].clientX : event.clientX;
-            let canvasRect = canvas.getBoundingClientRect();
-            let newX = xPos - canvasRect.left - basket.width / 2;
-
-            if (newX < 0) newX = 0;
-            if (newX > canvas.width - basket.width) newX = canvas.width - basket.width;
-
-            basket.x = newX;
-        }
-        canvas.addEventListener("mousemove", moveBasket);
-        canvas.addEventListener("touchmove", moveBasket);
-
-        // **Hand Tracking**
-        const hands = new Hands({ locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}` });
-        hands.setOptions({ maxNumHands: 1, minDetectionConfidence: 0.5, minTrackingConfidence: 0.5 });
-
-        const camera = new Camera(video, {
-            onFrame: async () => {
-                await hands.send({ image: video });
-            },
-            width: 400,
-            height: 300,
-        });
-        camera.start();
-
-        hands.onResults((results) => {
-            outputCtx.clearRect(0, 0, outputCanvas.width, outputCanvas.height);
-            if (results.multiHandLandmarks.length > 0) {
-                let x = results.multiHandLandmarks[0][8].x * outputCanvas.width;
-                basket.x = (x / outputCanvas.width) * canvas.width - basket.width / 2;
+        window.addEventListener("mousemove", (event) => {
+            for (let i = 0; i < 5; i++) {
+                particles.push(new Particle(event.x, event.y));
             }
         });
 
-        setInterval(createHeart, 1000);
-        updateGame();
+        function animate() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            handleParticles();
+            requestAnimationFrame(animate);
+        }
+        animate();
     </script>
 </body>
 </html>

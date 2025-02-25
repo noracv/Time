@@ -3,102 +3,39 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Secure Login</title>
+    <title>Online Code Editor</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.43.0/min/vs/editor/editor.main.css">
     <style>
-        body {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            background: linear-gradient(135deg, #667eea, #764ba2);
-            font-family: Arial, sans-serif;
-        }
-        .login-container {
-            background: white;
-            padding: 30px;
-            border-radius: 10px;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
-            text-align: center;
-            width: 300px;
-        }
-        h2 {
-            margin-bottom: 20px;
-            color: #333;
-        }
-        input {
-            display: block;
-            width: 100%;
-            padding: 10px;
-            margin: 10px 0;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            font-size: 16px;
-        }
-        button {
-            width: 100%;
-            padding: 10px;
-            background: #28a745;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 16px;
-            transition: background 0.3s;
-        }
-        button:hover {
-            background: #218838;
-        }
+        body { margin: 0; display: flex; height: 100vh; }
+        #editor { width: 70%; height: 100vh; }
+        #output-container { width: 30%; height: 100vh; display: flex; flex-direction: column; border-left: 1px solid #ccc; }
+        #output { flex: 1; padding: 10px; overflow: auto; }
+        #run-button { background: #007acc; color: white; border: none; padding: 10px; cursor: pointer; }
     </style>
 </head>
 <body>
-    <div class="login-container">
-        <h2>Secure Login</h2>
-        <input type="text" id="username" placeholder="Username" autocomplete="off">
-        <input type="password" id="password" placeholder="Password">
-        <button onclick="login()">Login</button>
-        <p id="error-message" style="color: red; display: none;">Too many attempts. Please try again later.</p>
+    <div id="editor"></div>
+    <div id="output-container">
+        <button id="run-button">Run Code</button>
+        <iframe id="output"></iframe>
     </div>
-
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.43.0/min/vs/loader.js"></script>
     <script>
-        let loginAttempts = 0;
-        const maxAttempts = 5;
-        const lockoutTime = 30000; // 30 seconds
+        require.config({ paths: { 'vs': 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.43.0/min/vs' } });
+        require(["vs/editor/editor.main"], function () {
+            const editor = monaco.editor.create(document.getElementById('editor'), {
+                value: '<!DOCTYPE html>\n<html>\n<head>\n<title>Live Preview</title>\n</head>\n<body>\n<h1>Hello, world!</h1>\n</body>\n</html>',
+                language: 'html',
+                theme: 'vs-dark',
+                automaticLayout: true
+            });
 
-        async function hashPassword(password) {
-            const encoder = new TextEncoder();
-            const data = encoder.encode(password);
-            const hashBuffer = await crypto.subtle.digest('SHA-256', data);
-            return Array.from(new Uint8Array(hashBuffer)).map(b => b.toString(16).padStart(2, '0')).join('');
-        }
-
-        async function login() {
-            if (loginAttempts >= maxAttempts) {
-                document.getElementById('error-message').style.display = 'block';
-                return;
-            }
-            
-            const username = document.getElementById('username').value.trim();
-            const password = document.getElementById('password').value.trim();
-            
-            if (!username || !password) {
-                alert('Please enter username and password.');
-                return;
-            }
-            
-            loginAttempts++;
-            if (loginAttempts >= maxAttempts) {
-                setTimeout(() => {
-                    loginAttempts = 0;
-                    document.getElementById('error-message').style.display = 'none';
-                }, lockoutTime);
-            }
-            
-            const hashedPassword = await hashPassword(password);
-            localStorage.setItem('username', username);
-            localStorage.setItem('password', hashedPassword);
-            
-            alert('Login successful!');
-        }
+            document.getElementById('run-button').addEventListener('click', () => {
+                const code = editor.getValue();
+                document.getElementById('output').srcdoc = code;
+            });
+        });
     </script>
 </body>
 </html>

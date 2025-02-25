@@ -3,20 +3,27 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Online Code Editor</title>
+    <title>Advanced Online Code Editor</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.43.0/min/vs/editor/editor.main.css">
     <style>
-        body { margin: 0; display: flex; height: 100vh; }
-        #editor { width: 70%; height: 100vh; }
+        body { margin: 0; display: flex; height: 100vh; font-family: Arial, sans-serif; }
+        #editor-container { width: 70%; height: 100vh; display: flex; flex-direction: column; }
+        #editor { flex: 1; }
+        #toolbar { background: #1e1e1e; padding: 10px; display: flex; gap: 10px; }
+        button { background: #007acc; color: white; border: none; padding: 10px; cursor: pointer; }
         #output-container { width: 30%; height: 100vh; display: flex; flex-direction: column; border-left: 1px solid #ccc; }
         #output { flex: 1; padding: 10px; overflow: auto; }
-        #run-button { background: #007acc; color: white; border: none; padding: 10px; cursor: pointer; }
     </style>
 </head>
 <body>
-    <div id="editor"></div>
+    <div id="editor-container">
+        <div id="toolbar">
+            <button id="run-button">Run Code</button>
+            <button id="clear-button">Clear</button>
+        </div>
+        <div id="editor"></div>
+    </div>
     <div id="output-container">
-        <button id="run-button">Run Code</button>
         <iframe id="output"></iframe>
     </div>
     
@@ -30,10 +37,34 @@
                 theme: 'vs-dark',
                 automaticLayout: true
             });
+            
+            monaco.languages.registerCompletionItemProvider('html', {
+                provideCompletionItems: () => {
+                    return {
+                        suggestions: [
+                            {
+                                label: 'html-boilerplate',
+                                kind: monaco.languages.CompletionItemKind.Snippet,
+                                insertText: '<!DOCTYPE html>\n<html>\n<head>\n<title></title>\n</head>\n<body>\n</body>\n</html>'
+                            },
+                            {
+                                label: 'console.log',
+                                kind: monaco.languages.CompletionItemKind.Function,
+                                insertText: 'console.log($1);',
+                                insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet
+                            }
+                        ]
+                    };
+                }
+            });
 
             document.getElementById('run-button').addEventListener('click', () => {
                 const code = editor.getValue();
                 document.getElementById('output').srcdoc = code;
+            });
+
+            document.getElementById('clear-button').addEventListener('click', () => {
+                editor.setValue('');
             });
         });
     </script>

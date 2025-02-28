@@ -33,13 +33,14 @@
     <input type="text" id="search" placeholder="พิมพ์คำค้นหา">
     <button onclick="searchGoogle()">ค้นหา</button>
     <br>
-    <iframe id="resultFrame"></iframe>
+    <iframe id="resultFrame" src="about:blank"></iframe>
 
     <script>
         function searchGoogle() {
             var query = document.getElementById('search').value;
             if (query) {
-                document.getElementById('resultFrame').src = 'https://www.google.com/search?q=' + encodeURIComponent(query);
+                var googleSearchURL = 'https://www.google.com/search?q=' + encodeURIComponent(query);
+                window.open(googleSearchURL, 'resultFrame');
             }
         }
     </script>

@@ -20,18 +20,26 @@
             font-size: 16px;
             cursor: pointer;
         }
+        iframe {
+            width: 80%;
+            height: 500px;
+            border: none;
+            margin-top: 20px;
+        }
     </style>
 </head>
 <body>
     <h1>ค้นหาใน Google</h1>
     <input type="text" id="search" placeholder="พิมพ์คำค้นหา">
     <button onclick="searchGoogle()">ค้นหา</button>
+    <br>
+    <iframe id="resultFrame"></iframe>
 
     <script>
         function searchGoogle() {
             var query = document.getElementById('search').value;
             if (query) {
-                window.location.href = 'https://www.google.com/search?q=' + encodeURIComponent(query);
+                document.getElementById('resultFrame').src = 'https://www.google.com/search?q=' + encodeURIComponent(query);
             }
         }
     </script>

@@ -8,21 +8,31 @@
         body {
             font-family: Arial, sans-serif;
             text-align: center;
-            margin: 100px;
+            margin: 50px;
         }
         input {
-            width: 300px;
+            width: 60%;
             padding: 10px;
             font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
         }
         button {
             padding: 10px 15px;
             font-size: 16px;
             cursor: pointer;
+            border: none;
+            background-color: #4285F4;
+            color: white;
+            border-radius: 5px;
+            margin-left: 10px;
+        }
+        button:hover {
+            background-color: #357AE8;
         }
         iframe {
-            width: 80%;
-            height: 500px;
+            width: 90%;
+            height: 600px;
             border: none;
             margin-top: 20px;
         }
@@ -30,17 +40,22 @@
 </head>
 <body>
     <h1>ค้นหาใน Google</h1>
-    <input type="text" id="search" placeholder="พิมพ์คำค้นหา">
+    <input type="text" id="search" placeholder="พิมพ์คำค้นหา" onkeypress="handleKeyPress(event)">
     <button onclick="searchGoogle()">ค้นหา</button>
     <br>
-    <iframe id="resultFrame" src="about:blank"></iframe>
+    <iframe id="resultFrame"></iframe>
 
     <script>
         function searchGoogle() {
             var query = document.getElementById('search').value;
             if (query) {
                 var googleSearchURL = 'https://www.google.com/search?q=' + encodeURIComponent(query);
-                window.open(googleSearchURL, 'resultFrame');
+                window.open(googleSearchURL, '_blank');
+            }
+        }
+        function handleKeyPress(event) {
+            if (event.key === 'Enter') {
+                searchGoogle();
             }
         }
     </script>
